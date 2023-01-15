@@ -16,8 +16,10 @@ final class RecipeListViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     @Published var recipes: [RecipeEntity] = []
+    @Published var isLoading: Bool = false
     
     func fetchRecipes() {
+        isLoading = true
         service.getRecipes()
             .receive(on: RunLoop.main)
             .sink { [weak self] result in
@@ -25,6 +27,7 @@ final class RecipeListViewModel: ObservableObject {
                     return
                 }
                 
+                self.isLoading = false
                 switch result {
                 case .success(let response):
                     self.recipes = response

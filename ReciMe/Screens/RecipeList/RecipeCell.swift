@@ -29,16 +29,19 @@ struct RecipeCell: View {
                         .cornerRadius(8)
                 }
             )
-
             
             VStack (alignment: .leading, spacing: 4) {
                 HStack {
                     Text(recipe.title.orEmpty)
                         .font(.body)
                     Spacer()
-                    
                     Image(recipe.liked.or(false) ? "like_fill" : "like")
                 }
+                
+                Text(recipe.description.orEmpty)
+                    .font(.caption)
+                    .foregroundColor(Color.black)
+                    .lineLimit(1)
                 
                 HStack (spacing: 2) {
                     ForEach(0 ..< 5) { item in
@@ -46,7 +49,7 @@ struct RecipeCell: View {
                             .renderingMode(.template)
                             .foregroundColor(Color("PrimaryColor"))
                     }
-                }.padding(.top)
+                }.padding(.top, 4)
                 
                 HStack {
                     Image("serving")
@@ -57,7 +60,6 @@ struct RecipeCell: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            
         }
         .padding()
         .frame(maxWidth: .infinity)

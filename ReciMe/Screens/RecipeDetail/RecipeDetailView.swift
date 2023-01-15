@@ -9,13 +9,106 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     @StateObject var viewModel: RecipeDetailViewModel
+    @SwiftUI.Environment(\.presentationMode) var presentation
+    
+    private let topImageWidth: Double = UIScreen.main.bounds.width
+    private let topImageHeight: Double = UIScreen.main.bounds.height * 0.3
+    private let creatorIconSize: Double = 24
+    private var recipe: RecipeEntity { viewModel.recipe }
     
     var body: some View {
         VStack {
-            Text(viewModel.recipe.title.orEmpty)
-                .font(.largeTitle)
-            Spacer()
+            ScrollView(.vertical, showsIndicators: false, content: {
+                AsyncImage(
+                    url: URL(string: recipe.imageUrl.orEmpty),
+                    content: { image in
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: topImageWidth, height: topImageHeight)
+                            .cornerRadius(8)
+                    },
+                    placeholder: {
+                        Image("Placeholder")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: topImageWidth, height: topImageHeight)
+                            .cornerRadius(8)
+                    }
+                )
+                
+                HStack {
+                    Text(recipe.title.orEmpty)
+                        .font(.title)
+                        .bold()
+                    Spacer()
+                    HStack (spacing: 2) {
+                        ForEach(0 ..< 5) { item in
+                            Image("star")
+                                .renderingMode(.template)
+                                .foregroundColor(Color("PrimaryColor"))
+                        }
+                    }.padding(.trailing, 10)
+                }
+                .padding(.leading, 10)
+                
+                if let creator = recipe.creator {
+                    HStack {
+                        AsyncImage(
+                            url: URL(string: creator.profileImageUrl.orEmpty),
+                            content: { image in
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: creatorIconSize, height: creatorIconSize)
+                                    .clipShape(Circle())
+                            },
+                            placeholder: {
+                                Image("Placeholder")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: creatorIconSize, height: creatorIconSize)
+                                    .clipShape(Circle())
+                            }
+                        )
+                        Text("by").padding(.leading, 4)
+                        Text(creator.username.orEmpty).foregroundColor(Color.orange).padding(.leading, -4)
+                        Spacer()
+                    }
+                    .padding(.leading, 10)
+                }
+                
+                
+                VStack{
+                    HStack {
+                        Text("Method")
+                            .font(.title2)
+                            .padding(.leading, /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+                        Spacer()
+                    }
+                    .padding(.vertical, 2)
+
+                    Text(recipe.method.orEmpty)
+                        .padding(.horizontal, 10)
+                }
+                .padding(.top, /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+
+            })
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            Button(action: {
+                self.presentation.wrappedValue.dismiss()
+            }) {
+                Image(systemName: "xmark")
+                    .resizable()
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.white)
+                    .padding(.all, 8)
+                    .background(Color.black.opacity(0.8))
+                    .clipShape(Circle())
+            }
+            
+        }
+        .edgesIgnoringSafeArea(.top)
     }
 }
 
@@ -23,36 +116,4 @@ struct RecipeDetailView_Previews: PreviewProvider {
     static var previews: some View {
         RecipeDetailView(viewModel: RecipeDetailViewModel(RecipeEntity.mock))
     }
-}
-
-private extension RecipeEntity {
-    static let mock: Self = .init(id: "0",
-                                  title: "Easy poke bowl",
-                                  imageUrl: "https://recime-model-1.s3.ap-southeast-2.amazonaws.com/images/f810bf27-acf5-4ad6-b4e1-d693ac9c7f43.jpg",
-                                  creator: .init(uid: "7NWpTwiUWQMm89GS3zJW7Is3Pej1",
-                                                 username: "codingproject",
-                                                 profileImageUrl: "https://recime-model-1.s3.ap-southeast-2.amazonaws.com/images/152137a2-bb71-4e52-8b2c-242c2e6ce26c.jpg",
-                                                 isFollowing: false),
-                                  cookTime: 5,
-                                  difficulty: .easy,
-                                  method: "Brown the ground beef well in a cast iron skillet over medium high. Set aside.\nSaute the onion and the first 5-6 cloves of garlic (reserve the other 3) in a large pot with a little olive oil or better yet, bacon grease. When translucent add the rest of the ingredients\nCook the rice\nMelt butter in a saucepan over medium heat. Add flour. Cook, stirring, with a wooden spoon, for 1 to 2 minutes or until mixture bubbles. Gradually stir in milk.\nBring to the boil. Reduce heat to medium. Cook, stirring, for 4 to 5 minutes or until mixture thickens. Season with salt and pepper. Allow to cool before refrigerating.",
-                                  timestamp: nil,
-                                  liked: true,
-                                  saved: true,
-                                  numLikes: 100,
-                                  numSaves: 40,
-                                  numComments: 8,
-                                  numRecreates: 2,
-                                  rating: 5,
-                                  visibility: "PUBLISHED",
-                                  tags: ["Healthy",
-                                         "Lunch",
-                                         "Snack",
-                                         "Crowd-pleaser",
-                                         "Side",
-                                         "Entertaining",
-                                         "Pescatarian",
-                                         "Dinner"],
-                                  cuisine: nil,
-                                  servingSize: 5)
 }

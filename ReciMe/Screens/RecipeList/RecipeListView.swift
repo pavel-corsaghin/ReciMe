@@ -12,17 +12,24 @@ struct RecipeListView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack {
-                    ForEach(viewModel.recipes) { recipe in
-                        NavigationLink(destination: RecipeDetailView(viewModel: RecipeDetailViewModel(recipe))) {
-                            RecipeCell(recipe: recipe)
+            ZStack {
+                ScrollView {
+                    LazyVStack {
+                        ForEach(viewModel.recipes) { recipe in
+                            NavigationLink(destination: RecipeDetailView(viewModel: RecipeDetailViewModel(recipe))) {
+                                RecipeCell(recipe: recipe)
+                            }
                         }
                     }
+                    .padding()
                 }
-                .padding()
+                
+                if viewModel.isLoading {
+                    ProgressView()
+                }
             }
-            .navigationBarTitle("Recipes")}
+            .navigationBarTitle("Recipes")
+        }
         .onAppear {
             viewModel.fetchRecipes()
         }
